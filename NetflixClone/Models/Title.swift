@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct MoviesResults: Codable {
-    let results: [Movie]
+struct TrendingTitlesResults: Codable {
+    let results: [Title]
     
 }
 
-struct Movie: Codable {
+struct Title: Codable {
     let id: Int
     let media_type: String?
     let original_title: String?
@@ -21,6 +21,7 @@ struct Movie: Codable {
     let vote_count: Int
     let release_date: String?
     let vote_average: Double?
+    let title: String?
 }
 
 /*
