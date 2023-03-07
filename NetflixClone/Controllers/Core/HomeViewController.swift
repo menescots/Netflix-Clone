@@ -35,6 +35,8 @@ class HomeViewController: UIViewController {
         configureNavBar()
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeTable.tableHeaderView = headerView
+        
+        navigationController?.pushViewController(FilmPreviewViewController(), animated: true)
     }
     
     private func configureNavBar() {
