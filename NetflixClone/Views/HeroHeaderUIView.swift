@@ -44,7 +44,11 @@ class HeroHeaderUIView: UIView {
         gradientLayer.frame = bounds
         layer.addSublayer(gradientLayer)
     }
-    
+    public func changeImage(with model: TitleViewModel) {
+        guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model.posterURL)") else { return }
+        
+        HeroImageView.sd_setImage(with: url)
+    }
     private func applyConstraints() {
         let playbuttonConstraints = [
             playButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),

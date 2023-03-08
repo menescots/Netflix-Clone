@@ -16,6 +16,8 @@ enum Sections: Int {
 }
 
 class HomeViewController: UIViewController {
+    private var randomFilm: Title?
+    private var headerView: HeroHeaderUIView?
     
     let sectionTitles = ["Trending movies","Trending TV", "Popular","Upcoming movies", "Top rated"]
     
@@ -33,12 +35,22 @@ class HomeViewController: UIViewController {
         homeTable.dataSource = self
         homeTable.delegate = self
         configureNavBar()
-        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeTable.tableHeaderView = headerView
-        
-        navigationController?.pushViewController(FilmPreviewViewController(), animated: true)
+        configureHeaderView()
     }
     
+    private func configureHeaderView() {
+        APICaller.shared.getTrendingMovies { [weak self] result in
+            switch result {
+            case .success(let films):
+                self?.randomFilm = films.randomElement()
+                self?.headerView?.changeImage(with: TitleViewModel(titleName: self?.randomFilm?.title ?? "", posterURL: self?.randomFilm?.poster_path ?? ""))
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
     private func configureNavBar() {
         var image = UIImage(named: "NetflixLogo")?.scaleTo(CGSize(width: 25, height: 40))
         image = image?.withRenderingMode(.alwaysOriginal)
@@ -65,6 +77,8 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "CollectionViewTableViewCell", for: indexPath) as? CollectionViewTableViewCell else { return UITableViewCell()
         }
+        
+        cell.delegate = self
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
             
@@ -159,4 +173,18 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
               navigationController?.setNavigationBarHidden(false, animated: true)
            }
     }
+}
+
+extension HomeViewController: CollectionViewTableViewCellDelegate {
+    func CollectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: YoutubePreviewViewModel) {
+        
+        DispatchQueue.main.async { [weak self] in
+            let vc = FilmPreviewViewController()
+            vc.configure(with: viewModel)
+            vc.hidesBottomBarWhenPushed = true
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
+    
 }

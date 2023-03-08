@@ -7,7 +7,12 @@
 
 import UIKit
 
+protocol CollectionViewTableViewCellDelegate: AnyObject {
+    func CollectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: YoutubePreviewViewModel)
+}
 class CollectionViewTableViewCell: UITableViewCell {
+    
+    weak var delegate: CollectionViewTableViewCellDelegate?
     
     static let identifier = "CollectionViewTableViewCell"
     private var titles: [Title] = [Title]()
@@ -48,7 +53,7 @@ class CollectionViewTableViewCell: UITableViewCell {
 extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TitleCollectionViewCell.identifier, for: indexPath) as? TitleCollectionViewCell else { return UICollectionViewCell() }
-        cell.backgroundColor = .systemPink
+        cell.backgroundColor = .systemBackground
         
         guard let model = titles[indexPath.row].poster_path else { return UICollectionViewCell()}
         cell.configure(with: model)
@@ -68,7 +73,9 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
         APICaller.shared.getMovieFromYouTube(with: titleName + "trailer") { result in
             switch result {
             case .success(let videoElement):
-                print(videoElement)
+                
+                let viewModel = YoutubePreviewViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? "")
+                self.delegate?.CollectionViewTableViewCellDidTapCell(self, viewModel: viewModel)
             case .failure(let error):
                 print(error)
             }
