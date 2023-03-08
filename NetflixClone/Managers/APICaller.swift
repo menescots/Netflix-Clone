@@ -145,15 +145,14 @@ class APICaller {
         guard let url = URL(string: "https://youtube.googleapis.com/youtube/v3/search?q=\(query)&key=\(Constants.YTAPI_Key)") else {
             return
         }
-        
         URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else {
                 return
             }
-            
+            print(data)
             do {
                 let results = try JSONDecoder().decode(YoutubeResponse.self, from: data)
-                completion(.success(results.items[0]))
+                completion(.success(results.items[2]))
             } catch {
                 completion(.failure(error))
             }

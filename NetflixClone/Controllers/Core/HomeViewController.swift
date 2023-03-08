@@ -35,7 +35,7 @@ class HomeViewController: UIViewController {
         homeTable.dataSource = self
         homeTable.delegate = self
         configureNavBar()
-        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 500))
         homeTable.tableHeaderView = headerView
         configureHeaderView()
     }
@@ -181,7 +181,6 @@ extension HomeViewController: CollectionViewTableViewCellDelegate {
         DispatchQueue.main.async { [weak self] in
             let vc = FilmPreviewViewController()
             vc.configure(with: viewModel)
-            vc.hidesBottomBarWhenPushed = true
             self?.navigationController?.pushViewController(vc, animated: true)
         }
     }

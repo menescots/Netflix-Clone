@@ -27,7 +27,7 @@ class SearchViewController: UIViewController {
         super.viewDidLoad()
         title = "Search"
         view.backgroundColor = .systemBackground
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.prefersLargeTitles = false
         navigationController?.navigationBar.topItem?.largeTitleDisplayMode = .always
         searchMoviesTable.delegate = self
         searchMoviesTable.dataSource = self
@@ -74,9 +74,32 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let title = titles[indexPath.row]
+        
+        guard let titleName = title.original_title ?? title.title else {
+            return
+        }
+        
+        APICaller.shared.getMovieFromYouTube(with: titleName) { [weak self] result in
+            switch result {
+            case .success(let videoElement):
+                DispatchQueue.main.async{
+                    let vc = FilmPreviewViewController()
+                    vc.hidesBottomBarWhenPushed = true
+                    vc.configure(with: YoutubePreviewViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? ""))
+                    self?.navigationController?.pushViewController(vc, animated: true)
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
 }
 
-extension SearchViewController: UISearchResultsUpdating, UISearchBarDelegate {
+extension SearchViewController: UISearchResultsUpdating, UISearchBarDelegate, searchMoviesViewControllerDelegate {
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
         
@@ -86,8 +109,9 @@ extension SearchViewController: UISearchResultsUpdating, UISearchBarDelegate {
               let resultsController = searchController.searchResultsController as? SearchMoviesViewController else {
             return
         }
+        
+        resultsController.delegate = self
         APICaller.shared.search(for: query) { result in
-            print("hello")
             DispatchQueue.main.async {
                 switch result {
                 case .success(let films):
@@ -97,6 +121,15 @@ extension SearchViewController: UISearchResultsUpdating, UISearchBarDelegate {
                     print(error)
                 }
             }
+        }
+    }
+    
+    func searchMoviesViewControllerDidTapItem(_ viewModel: YoutubePreviewViewModel) {
+        DispatchQueue.main.async{ [weak self] in
+            let vc = FilmPreviewViewController()
+            vc.hidesBottomBarWhenPushed = true
+            vc.configure(with: viewModel)
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

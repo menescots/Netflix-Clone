@@ -12,23 +12,23 @@ class FilmPreviewViewController: UIViewController {
     private let webView: WKWebView = {
         let webView = WKWebView()
         webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.backgroundColor = .systemBackground
         return webView
     }()
     
     private let filmTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 25, weight: .light)
-        label.text = "hallllo"
+        label.font = .systemFont(ofSize: 25, weight: .medium)
+        label.numberOfLines = 0
         return label
     }()
     
     private let overviewLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 17, weight: .light)
+        label.font = .systemFont(ofSize: 16, weight: .light)
         label.numberOfLines = 0
-        label.text = "fjeeojfojefojoejfofjijeoijfiowjfoeiwjfoweijfiowejfowejfoiwejfioewjfowejiojfowiefowei"
         return label
     }()
     
@@ -43,10 +43,10 @@ class FilmPreviewViewController: UIViewController {
     }()
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(webView)
         view.addSubview(filmTitleLabel)
         view.addSubview(overviewLabel)
         view.addSubview(downloadButton)
+        view.addSubview(webView)
         view.backgroundColor = .systemBackground
         configureConstaints()
     }
@@ -57,13 +57,13 @@ class FilmPreviewViewController: UIViewController {
             webView.topAnchor.constraint(equalTo: view.topAnchor, constant: 90),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.heightAnchor.constraint(equalToConstant: (view.frame.height/2) - 20)
+            webView.heightAnchor.constraint(equalToConstant: (view.frame.height/3) - 20)
         ]
         
         let titleConstraints = [
             filmTitleLabel.topAnchor.constraint(equalTo: webView.bottomAnchor, constant: 20),
-            filmTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            filmTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 20)
+            filmTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            filmTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
         ]
         
         let overView = [
@@ -88,10 +88,14 @@ class FilmPreviewViewController: UIViewController {
         filmTitleLabel.text = model.title
         overviewLabel.text = model.titleOverview
         
-        guard let url = URL(string: "https://www.youtube.com/embed/\(model.youtubeView.id.videoId)") else {
+        guard let id = model.youtubeView.id.videoId else { return }
+        guard let url = URL(string: "https://www.youtube.com/embed/\(id)") else {
             return
         }
-        
-        webView.load(URLRequest(url: url))
+        print(url)
+        let request = URLRequest(url: url)
+        DispatchQueue.main.async{ [weak self] in
+            self?.webView.load(request)
+        }
     }
 }
