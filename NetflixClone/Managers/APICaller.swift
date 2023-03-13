@@ -22,7 +22,6 @@ class APICaller {
 
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void ) {
         guard let url = URL(string: "\(Constants.dbURL)/3/trending/movie/day?api_key=\(Constants.API_Key)") else { return }
-        
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else { return }
             
@@ -124,7 +123,7 @@ class APICaller {
         }
         guard let url = URL(string: "\(Constants.dbURL)/3/search/movie?api_key=\(Constants.API_Key)&query=\(query)") else {
             return }
-        
+        print(url)
         let task = URLSession.shared.dataTask(with: url) { data, _, error in
             guard let data = data, error == nil else { return }
             
@@ -149,7 +148,6 @@ class APICaller {
             guard let data = data, error == nil else {
                 return
             }
-            print(data)
             do {
                 let results = try JSONDecoder().decode(YoutubeResponse.self, from: data)
                 completion(.success(results.items[2]))
